@@ -1,2 +1,57 @@
 # micrometabolicnetworks
-Building and analysing prokaryotic metabolic networks. Code for paper "Robust structure measures of metabolic networks that predict prokaryotic optimal growth temperature", from Weber, Sokolovska and Soula (2019)
+Building and analysing prokaryotic metabolic networks in regard to their optimal growth temperature. 
+
+Code for paper "Robust structure measures of metabolic networks that predict prokaryotic optimal growth temperature", from Weber, Sokolovska and Soula (2019)
+
+For details on the algorithm and results, see the paper.
+
+## Dependencies
+Python 2.7
+The package requirements can be found in **requirements.txt**
+
+## Installation
+Unzip **database\_species\_list\_assembly\_files.zip**.
+
+
+-----------------
+## To replicate our paper results, run :
+
+### To build our metabolic networks
+- graphs\_takemoto\_species.py
+- graphs\_Bacdivedb\_species.py
+- graphs\_HPMCdb\_species.py
+
+### To analyse our metabolic networks
+- analysis\_graph\_properties.py
+- analysis\_laplacian\_spectrum.py
+
+
+-----------------
+An example of use of our toolbox **utils.py** can be found in **example.py**
+
+
+## File overview
+
+**requirements.txt** - Package requirements
+
+**12859\_2006\_1675\_MOESM1\_ESM.xls** - Takemoto et al 2007 supplementary figure (Takemoto, K., Nacher, J.C., and Akutsu, T. (2007). Correlation between structure and temperature in prokaryotic metabolic networks. *BMC Bioinformatics* 8, 303.)
+In **database\_species\_list\_assembly\_files.zip** :
+  **assembly\_summary\_prokaryotes.txt** - Genbank's assembly summary (archaea, bacteria), March 2018
+  **bacteriaClassification\_hpmcd\_microbiota.txt** - HPMC database bacteria classification, May 2018
+  **species.txt** - Ensembl species summary file, March 2018
+
+**utils.py** - toolbox with functions to build and analyse metabolic networks
+
+**graphs\_takemoto\_species.py** - to build networks for the species from Takemoto et al 2007 paper
+**graphs\_Bacdivedb\_species.py** - to find and build networks for BacDive species
+**graphs\_HPMCdb\_species.py** - to find species and build networks from HPMC database
+
+**analysis\_graph\_properties.py** - analysing and plotting different network structural properties vs optimal growth temperature
+**analysis\_laplacian\_spectrum.py** - evaluating and plotting Laplacian spectrum
+
+**example.py** - toy example of usage of our toolbox
+
+**get\_cDNA1.0.sh** - finding cDNA fasta file through species name
+**get\_cDNA2.0.sh** - finding cDNA fasta file through taxonomy ID
+**get\_cDNA3.0.sh** - finding cDNA fasta file through assembly ID
+
