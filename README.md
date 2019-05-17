@@ -10,8 +10,8 @@ Python 2.7
 The package requirements can be found in **requirements.txt**
 
 ## Installation
-Unzip **database\_species\_list\_assembly\_files.zip**.
-
+Download repertory.
+Unzip **database\_species\_list\_assembly\_files.zip**. It is then ready to use.
 
 -----------------
 ## To replicate our paper results, run :
