@@ -4,18 +4,19 @@
 @author: adele
 """
 from __future__ import unicode_literals
-import pandas as pd
-from bioservices import KEGG
 import os
-from StringIO import StringIO
-from utils import *
-import matplotlib.pyplot as plt
-import numpy as np
-import networkx as nx
-from scipy.stats import linregress
-from collections import Counter
+
 import logging
 import cPickle as cpk
+
+import pandas as pd
+import numpy as np
+import networkx as nx
+
+from utils import get_temperature_pH_bacdive, GraphClass, triadic_census, article_density, \
+    degree_exponent_ML
+from utils_general import is_enz, plotting_pathway_non_pathway_graph, plotting_graph
+    
 
 #Setting logging preferences
 logging.basicConfig(level=logging.INFO)
@@ -264,11 +265,18 @@ if __name__ == '__main__':
     #SAVING IMPORTANT VARIABLES
     save = True
     if save :
+        #We will sort per temperature the species for further studies
+        index_temp = np.argsort(optimal_temps_ok)
+        good_names_sort = good_names[index_temp]
+        optimal_temps_sort = optimal_temps_ok[index_temp]
+        good_codes_sort = good_codes[index_temp]
+        temp_class_sort = temp_class_ok[index_temp]
+        
         number = str(len(valid_species))
-        cpk.dump(optimal_temps_ok, open("backup_cpkl/optimal_temp_"+number+".cpkl", "wb"))
-        cpk.dump(good_names, open("backup_cpkl/names_"+number+".cpkl", "wb"))
-        cpk.dump(good_codes, open("backup_cpkl/codes_"+number+".cpkl", "wb"))
-        cpk.dump(temp_class_ok, open("backup_cpkl/temp_class_"+number+".cpkl", "wb"))
+        cpk.dump(optimal_temps_sort, open("backup_cpkl/optimal_temp_"+number+".cpkl", "wb"))
+        cpk.dump(good_names_sort, open("backup_cpkl/names_"+number+".cpkl", "wb"))
+        cpk.dump(good_codes_sort, open("backup_cpkl/codes_"+number+".cpkl", "wb"))
+        cpk.dump(temp_class_sort, open("backup_cpkl/temp_class_"+number+".cpkl", "wb"))
         cpk.dump(list(all_nodes_set), open("backup_cpkl/all_nodes_"+number+".cpkl", "wb"))
         cpk.dump(list(all_nodes_set_path), open("backup_cpkl/all_nodes_pathway_"+number+".cpkl", "wb"))
         

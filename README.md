@@ -1,9 +1,11 @@
 # micrometabolicnetworks
 Building and analysing prokaryotic metabolic networks in regard to their optimal growth temperature. 
 
-Code for paper "Robust structure measures of metabolic networks that predict prokaryotic optimal growth temperature", from Weber, Sokolovska and Soula (2019)
+Code for paper "Robust structure measures of metabolic networks that predict prokaryotic optimal growth temperature", from Weber Zendrera, Sokolovska and Soula (2019, BMC Bioinformatics)
 
 For details on the algorithm and results, see the paper.
+
+As of 2020, added code for metabolic network scope analysis, for our second paper on the subject.
 
 ## Dependencies
 Python 2.7
@@ -14,7 +16,7 @@ Download repertory.
 Unzip **database\_species\_list\_assembly\_files.zip**. It is then ready to use.
 
 -----------------
-## To replicate our paper results, run :
+## To replicate our paper results from 2019, run :
 
 ### To build our metabolic networks
 - graphs\_takemoto\_species.py
@@ -25,6 +27,9 @@ Unzip **database\_species\_list\_assembly\_files.zip**. It is then ready to use.
 - analysis\_graph\_properties.py
 - analysis\_laplacian\_spectrum.py
 
+
+## To replicate our paper results from 2020, after building the networks, run:
+- scope_analysis.py
 
 -----------------
 An example of use of our toolbox **utils.py** can be found in **example.py**
@@ -40,7 +45,7 @@ In **database\_species\_list\_assembly\_files.zip** :
   **bacteriaClassification\_hpmcd\_microbiota.txt** - HPMC database bacteria classification, May 2018
   **species.txt** - Ensembl species summary file, March 2018
 
-**utils.py** - toolbox with functions to build and analyse metabolic networks
+**utils.py** and **utils\_general.py** - toolbox with functions to build and analyse metabolic networks
 
 **graphs\_takemoto\_species.py** - to build networks for the species from Takemoto et al 2007 paper
 **graphs\_Bacdivedb\_species.py** - to find and build networks for BacDive species
@@ -48,6 +53,7 @@ In **database\_species\_list\_assembly\_files.zip** :
 
 **analysis\_graph\_properties.py** - analysing and plotting different network structural properties vs optimal growth temperature
 **analysis\_laplacian\_spectrum.py** - evaluating and plotting Laplacian spectrum
+**scope\_analysis.py** - evaluating and analysing/plotting metabolic network scopes, and using a spectral clustering on the species
 
 **example.py** - toy example of usage of our toolbox
 

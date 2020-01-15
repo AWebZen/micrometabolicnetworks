@@ -16,9 +16,10 @@ from Bio.KEGG import Enzyme
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
-from scipy.stats import linregress, kruskal, bartlett, f_oneway
 import numpy as np
 from scipy.sparse import csgraph
+
+from utils_general import is_enz
 
 #Setting logging preferences
 logging.basicConfig(level=logging.INFO)
@@ -312,7 +313,7 @@ class GraphClass:
         strong_comps = self.strongly_connected_comps()[2]
         for w in weak_comps :
             if len(strong_comps[0] & w) == len(strong_comps[0]) :
-                hier_flow = (len(w) - len(strong_comps[0]))/float(len(w))
+                hier_flow = (len(w) - len(strong_comps[0]))
                 break
         return hier_flow
     
@@ -414,7 +415,66 @@ class GraphClass:
                 logger.error("Uh oh... something wrong when handling label incongruencies...")
                 raise SystemError()
             
+
+    def scope(self, inputs):
+        """
+        Determines metabolic network scope.
+        
+        /!\ Only for directed reaction graphs!!
+        
+        INPUT:
+        inputs - list of input compounds of the network.
+            
+        OUTPUT:
+        scope - dict, says if node is in scope or not for the set of inputs.
+        """
+        
+        def test_inputs (input_cmp) :
+            """ Tests if inputs exist in graph, else only selects compounds in graph,
+            otherwise throws an error """
+            if not np.all(np.in1d(list(input_cmp), list(self.graph.nodes)) == True):
+                length = len(input_cmp)
+                logger.warning("At least one wrong compound name for inputs, will be removed")
+                input_cmp = list(np.array(input_cmp)[np.in1d(list(input_cmp), list(self.graph.nodes))])
+                logger.warning("%d/%d kept from added inputs" %(len(input_cmp), length))
+                if len(input_cmp) < 1 :
+                    logger.error("Not enough inputs")
+                    raise SystemExit()
+            return input_cmp
+        
+        assert len(self.graph.nodes()) > 0, "Graph needs to be built or loaded"
+        assert nx.is_directed(self.graph), "Needs a directed graph!"
+        assert any(map(is_enz, self.graph.nodes())), "Only implemented for reaction graphs"
+            
+        
+        #Source compounds (inputs) from which scope will be measured
+        inputs = test_inputs(inputs)
+        
+        scope = dict.fromkeys(self.graph.nodes, "Non accessible")
+        
+        #Initialisation: all inputs are accessible
+        for i in inputs:
+            scope[i] = "Accessible"
+            if is_enz(i):
+                sccssors = list(self.graph.successors(i))
+                for succ in sccssors:
+                    scope[succ] = "Accessible"
+        
+        #Accessible nodes from each input
+        for inp in inputs:
+            for _, t in nx.bfs_edges(self.graph, inp):
+                if not is_enz(t):
+                    continue
+                preds = list(self.graph.predecessors(t))
+                access_preds = np.array([scope[pr] for pr in preds])
+                if np.all(access_preds == "Accessible"):
+                    scope[t] = "Accessible"
+                    sccssors = list(self.graph.successors(t))
+                    for succ in sccssors :
+                        scope[succ] = "Accessible"
+        return scope
                     
+
                     
 
 
@@ -1218,96 +1278,6 @@ class MetabolicGraph:
         graphe = self.build_substrate_product_graph (filtr, save, gname, pklname, pathways)
         return graphe
 
-
-# =============================================================================
-# General functions
-# =============================================================================
-def is_enz (node):
-    """Tells if node is an enzyme (EC) or not"""
-    split = node.split(".")
-    if len(split) == 4 :#and np.all(np.array([sp.isdigit() for sp in split]) == True) :
-        return True
-    else:
-        return False
-
-
-def plotting_graph (x, y, xlabel, ylabel, yless, 
-                    topredictX=False, ylim=[], title="") :
-    """
-    Plots with linear regression, giving Pearson's r and its associated p-value,
-    and prints them.
-    
-    INPUT:
-    x, y - data
-    xlabel - label for x
-    ylabel - label for y
-    yless - value to deduct to minimal y value in data, to place the text giving r and p-value.
-    topredictX - y value, to print expected X
-    ylim - y min and y max in plot span, if needed (otherwise matplotlib's default).
-    title - title of the plot, if needed
-    """
-    p = linregress(x, y)
-    plt.figure()
-    plt.subplots_adjust(left=0.16)
-    plt.scatter(x, y)
-    plt.plot(x, x*p.slope+p.intercept)
-    plt.text(np.mean(x) - np.mean(x)/3. , np.min(y)-yless, "r = "+str(round(p.rvalue,4)))
-    plt.text(np.mean(x) + np.mean(x)/3. , np.min(y)-yless, "p-val = "+str(round(p.pvalue,10)))
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    if len(ylim) != 0 :
-        plt.ylim(ylim[0],ylim[1])
-    if len(title) != 0:
-        plt.title(title)
-    plt.show()
-    if p.pvalue < 0.05:
-        print str(round(p.rvalue,4))+"\t"+str(round(p.pvalue,4)), ylabel#+"\t"+str(p.slope)
-    if topredictX :
-        print "Expected", xlabel, ":", (topredictX - p.intercept)/float(p.slope)
-    
-        
-    
-def plotting_pathway_non_pathway_graph (x, y, y_path, xlabel, ylabel, 
-                                        ylim=[], title=""):
-    """
-    Plots with linear regression, giving Pearson's r and its associated p-value.
-    Plots at the same time data for graph with all enzymes (y) and for graph with
-    only enzymes in known pathways.
-    
-    INPUT:
-    x, y - data
-    y_path - data for graphs for enzymes in known pathways
-    xlabel - label for x
-    ylabel - label for y
-    ylim - y min and y max in plot span, if needed (otherwise matplotlib's default).
-    title - title of the plot, if needed
-    """
-    p = linregress(x, y)
-    p2 = linregress(x, y_path)
-    plt.figure()
-    plt.scatter(x, y, label = "All enzymes", c = "b" )
-    plt.scatter(x, y_path, label = "Pathway enzymes", c = "g")
-    plt.plot(x, x*p.slope+p.intercept, c = "b")
-    plt.plot(x, x*p2.slope+p2.intercept, c = "g")
-    plt.legend(loc = "best")
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    if len(ylim) != 0 :
-        plt.ylim(ylim[0], ylim[1])
-    if len(title) != 0:
-        plt.title(title)
-    plt.show()
-    print "All", str(p.rvalue)+"\t"+str(p.pvalue)+"\t"+str(p.slope)
-    print "pathway", str(p2.rvalue)+"\t"+str(p2.pvalue)+"\t"+str(p2.slope)
-    
-    
-def common_nodes (nodes1, nodes2) :
-    """
-    Returns list of the intersection of two sets/lists of nodes
-    """
-    nodes1 = set(nodes1)
-    nodes2 = set(nodes2)
-    return nodes1 & nodes2
 
 # =============================================================================
 # Additional reconstruction functions
