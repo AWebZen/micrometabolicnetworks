@@ -5,7 +5,7 @@ Code for paper "Robust structure measures of metabolic networks that predict pro
 
 For details on the algorithm and results, see the paper.
 
-As of 2020, added code for metabolic network scope analysis, for our second paper on the subject.
+As of 2020, added code for metabolic network scope analysis, for our second paper on "Scope spectral clustering of metabolic networks and environment".
 
 ## Dependencies
 Python 2.7
