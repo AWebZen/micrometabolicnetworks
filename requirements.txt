@@ -102,7 +102,6 @@ ptyprocess=0.6.0=py27_0
 pycodestyle=2.4.0=py27_0
 pycparser=2.19=py27_0
 pyflakes=2.0.0=py27_0
-pygments=2.2.0=py27h4a8b6f5_0
 pylint=1.9.2=py27_0
 pyopenssl=18.0.0=py27_0
 pyparsing=2.3.0=py27_0
